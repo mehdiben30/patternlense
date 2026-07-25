@@ -1,0 +1,10 @@
+kloppy
+pandas
+numpy
+pyarrow
+pydantic
+openai
+streamlit[charts]
+plotly
+pytest
+python-dotenv
