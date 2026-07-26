@@ -175,6 +175,7 @@ class MatchContext:
     tracking: pd.DataFrame
     events: pd.DataFrame
     periods: dict[int, pd.DataFrame]
+    losses: list[dict]
     team_id: dict[str, str]
     team_name: dict[str, str]
     side_for_team_id: dict[str, str]
@@ -182,6 +183,23 @@ class MatchContext:
     goalkeeper: dict[str, str]
     attack_direction: dict[tuple[int, str], int]
     player_label: dict[str, str]
+    player_number: dict[str, str]
+
+    def frame_for_result(self, result: dict):
+        """La frame exacte de la perte, telle qu'affichée sur le terrain 2D."""
+        period = self.periods[result["period_id"]]
+        return period.iloc[result["frame_index"]]
+
+    def highlighted_players(self, result: dict) -> list[str]:
+        """Joueurs cités comme preuve, à surligner sur le terrain."""
+        highlighted = []
+        for output in result["evidence"].values():
+            highlighted.extend(output.get("player_ids") or [])
+        return list(dict.fromkeys(highlighted))
+
+    def direction_for_result(self, result: dict) -> int:
+        """Sens d'attaque de l'équipe qui perd le ballon, pour orienter la figure."""
+        return self.attack_direction[(result["period_id"], result["team"])]
 
 
 def get_context() -> MatchContext:
@@ -202,16 +220,27 @@ def get_context() -> MatchContext:
         for team in metadata["teams"].values()
         for player in team["players"]
     }
+    player_number = {
+        player["player_id"]: str(player["jersey_no"])
+        for team in metadata["teams"].values()
+        for player in team["players"]
+    }
 
     periods = {
         int(period_id): period.reset_index(drop=True)
         for period_id, period in tracking.groupby("period_id", sort=True)
     }
 
+    # Import local : engine dépend des primitives, pas de data — on évite le cycle.
+    from src.engine import detect_possession_losses
+
+    losses = detect_possession_losses(tracking).to_dict("records")
+
     return MatchContext(
         tracking=tracking,
         events=events,
         periods=periods,
+        losses=losses,
         team_id=TEAM_ID,
         team_name=TEAM_NAME,
         side_for_team_id=side_for_team_id,
@@ -219,4 +248,5 @@ def get_context() -> MatchContext:
         goalkeeper=GOALKEEPER_ID,
         attack_direction=ATTACK_DIRECTION,
         player_label=player_label,
+        player_number=player_number,
     )

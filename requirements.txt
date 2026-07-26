@@ -8,3 +8,4 @@ streamlit[charts]
 plotly
 pytest
 python-dotenv
+truststore

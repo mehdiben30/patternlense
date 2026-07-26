@@ -1,0 +1,6 @@
+period,horloge,timestamp,frame_id,equipe,behind_moteur,behind_recompte,loss_correct,behind_count_correct,recovery_correct,notes
+1,6:33.44,393.44,19836,FC Bayern München,5,5,1,1,1,
+1,7:19.64,439.64,20991,FC Bayern München,3,3,1,1,1,
+1,14:16.72,856.72,31418,FC Bayern München,5,5,1,1,1,
+1,32:17.68,1937.68,58442,FC Bayern München,5,5,1,1,1,
+2,92:18.00,2838.0,170950,FC Bayern München,5,5,1,1,1,
